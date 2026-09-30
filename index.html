@@ -165,7 +165,10 @@ function render(){
  $('observeMode').setAttribute('aria-pressed',String(mode==='observe'));$('predictMode').setAttribute('aria-pressed',String(mode==='predict'));
  $('emptyHistory').hidden=cursor>0;$('emptyHistory').innerHTML=mode==='predict'?'아직 비교하지 않았어요.<br>다음 범위를 맞히면 비교가 기록돼요.':'아직 비교하지 않았어요.<br>‘한 단계 →’를 누르면 첫 번째 비교가 기록돼요.';
  $('history').innerHTML=states.slice(1,cursor+1).map(st=>{const h=st.last;const rel=h.outcome==='found'?'=':h.outcome==='left'?'<':'>';const desc=h.outcome==='found'?`위치 ${h.mid}에서 찾음`:h.outcome==='left'?'가운데와 오른쪽 제외':'가운데와 왼쪽 제외';const remain=st.status==='found'?1:Math.max(0,st.right-st.left+1);return `<li class="history-row"><span class="step-num">${h.count}</span><div><b>${target} ${rel} ${h.value}</b> · ${desc}<small>위치 ${h.left}~${h.right} · 후보 ${h.right-h.left+1}개 → ${remain}개${st.status==='missing'?' · 찾는 수 없음':''}</small></div><div class="mini-array" aria-hidden="true">${array.map((_,i)=>`<i class="${i===h.mid?(h.outcome==='found'?'match':'check'):i>=h.left&&i<=h.right?'live':''}"></i>`).join('')}</div></li>`;}).join('');
- const chain=[];for(let n=array.length;n>0;n=Math.floor(n/2))chain.push(n);$('halve').textContent=chain.join(' → ');$('bound').textContent=`${array.length}개의 숫자는 최대 ${Math.floor(Math.log2(array.length))+1}번 비교하면 찾거나, 없다는 것을 알 수 있어요.`;
+ // This explanation panel is optional; removing it must not interrupt code highlighting.
+ const halve=$('halve'),bound=$('bound');
+ if(halve){const chain=[];for(let n=array.length;n>0;n=Math.floor(n/2))chain.push(n);halve.textContent=chain.join(' → ');}
+ if(bound)bound.textContent=`${array.length}개의 숫자는 최대 ${Math.floor(Math.log2(array.length))+1}번 비교하면 찾거나, 없다는 것을 알 수 있어요.`;
  const line=found?8:s.status==='missing'?14:s.count===0?5:s.last.outcome==='left'?12:10;document.querySelectorAll('#code li').forEach(el=>el.classList.toggle('active',Number(el.dataset.line)===line));
 }
 function readTarget(){const raw=$('target').value.trim(),n=Number(raw);if(!raw||!Number.isInteger(n)||n<-999||n>999){$('notice').textContent='찾을 숫자는 −999부터 999까지의 정수로 입력해 주세요.';return null;}return n;}
